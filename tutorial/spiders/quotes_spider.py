@@ -67,6 +67,7 @@ class BaomoiSpider(scrapy.Spider):
         for post in posts:
             title = post.xpath('h4[@class="story__heading"]/a/text()').extract()[0].replace("\n", "").strip()
             url = post.xpath('h4[@class="story__heading"]/a/@href').extract()[0].replace("\n", "").strip()
+            image = post.xpath('div[@class="story__thumb"]/a/img/@src').extract()[0].replace("\n", "").strip()
             newspaper = post.xpath('div[@class="story__meta"]/a/text()').extract()[0].replace("\n", "").strip()
             sponsor = ''
             try:
@@ -78,7 +79,7 @@ class BaomoiSpider(scrapy.Spider):
             yield scrapy.Request(
                 str("https://baomoi.com" + url),
                 callback=self.parse_baomoi_url,
-                meta={'title': title, 'url': url, 'newspaper': newspaper, 'baomoi_id': baomoi_id, 'sponsor': sponsor})
+                meta={'title': title, 'url': url, 'newspaper': newspaper, 'baomoi_id': baomoi_id, 'sponsor': sponsor, 'image': image})
 
     def parse_baomoi_url(self, response):
         abstract = Selector(response).xpath('//meta[@name="description"]/@content').extract()[0]
@@ -95,6 +96,7 @@ class BaomoiSpider(scrapy.Spider):
             'title': response.meta['title'],
             'baomoi_url': response.meta['url'],
             'newspaper': response.meta['newspaper'],
+            'image': response.meta['image'],
             'original_url': original_url,
             'sponsor': response.meta['sponsor'],
             'abstract': abstract,

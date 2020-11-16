@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
-import scrapy
-from scrapy import Spider
-from scrapy.selector import Selector
 import re
 from datetime import datetime
 
+import scrapy
+from scrapy import Spider
+from scrapy.selector import Selector
+
 
 class BaomoiSpider(scrapy.Spider):
-    name = 'baomoi'
+    name = 'baomoi1'
     allowed_domains = ['baomoi.com']
     #   start_urls = ['http://baomoi.com/']
     start_urls = [
@@ -65,7 +66,8 @@ class BaomoiSpider(scrapy.Spider):
     def parse(self, response):
         posts = Selector(response).xpath('//div[@class="story"]')
         for post in posts:
-            title = post.xpath('h4[@class="story__heading"]/a/text()').extract()[0].replace("\n", "").strip()
+            title = post.xpath('h4[@class="story__heading"]/a/text()').eimagextract()[0].replace("\n", "").strip()
+            image = post.xpath('[@class="story__thumb"]/a/img/@src()').extract()[0].replace("\n", "").strip()
             url = post.xpath('h4[@class="story__heading"]/a/@href').extract()[0].replace("\n", "").strip()
             newspaper = post.xpath('div[@class="story__meta"]/a/text()').extract()[0].replace("\n", "").strip()
             sponsor = ''
@@ -78,12 +80,13 @@ class BaomoiSpider(scrapy.Spider):
             yield scrapy.Request(
                 str("https://baomoi.com" + url),
                 callback=self.parse_baomoi_url,
-                meta={'title': title, 'url': url, 'newspaper': newspaper, 'baomoi_id': baomoi_id, 'sponsor': sponsor})
+                meta={'title': title, 'url': url, 'newspaper': newspaper, 'baomoi_id': baomoi_id, 'sponsor': sponsor, 'image':image})
 
     def parse_baomoi_url(self, response):
         abstract = Selector(response).xpath('//meta[@name="description"]/@content').extract()[0]
         keywords = Selector(response).xpath('//meta[@name="keywords"]/@content').extract()[0]
-        original_url = response.xpath('//script[@type="text/javascript"]/text()').re(r"window\.location\.replace\(\"(.*?)\"\)")[0]
+        original_url = \
+        response.xpath('//script[@type="text/javascript"]/text()').re(r"window\.location\.replace\(\"(.*?)\"\)")[0]
 
         meta = response.meta
         meta['abstract'] = abstract

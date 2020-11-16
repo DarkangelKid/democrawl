@@ -4,19 +4,18 @@
 # See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 
 
-# useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-import json
-from scrapy.exceptions import DropItem
-from pymongo import MongoClient
 import re
 from datetime import datetime
+
+# useful for handling different item types with a single interface
+from pymongo import MongoClient
 
 
 class TutorialPipeline:
     def open_spider(self, spider):
         #   connect to mongo db
-        db = MongoClient('192.168.2.167', 27017).CRAWLER
+        db = MongoClient('192.168.2.167', 27017, username='root', password='11091991').CRAWLER
+
         self.col_article = db['articles']
         self.col_history = db['history']
 
